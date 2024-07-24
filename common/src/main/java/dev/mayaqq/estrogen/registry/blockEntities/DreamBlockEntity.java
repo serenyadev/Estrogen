@@ -5,6 +5,8 @@ import dev.mayaqq.estrogen.registry.EstrogenBlockEntities;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,5 +47,9 @@ public class DreamBlockEntity extends BlockEntity {
             if(below instanceof DreamBlockEntity dDown) dDown.updateTexture(false);
         }
 
+    }
+
+    public boolean shouldRenderFace(Direction face) {
+        return Block.shouldRenderFace(this.getBlockState(), this.level, this.getBlockPos(), face, this.getBlockPos().relative(face));
     }
 }

@@ -8,11 +8,13 @@ import com.simibubi.create.foundation.block.connected.SimpleCTBehaviour;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.mayaqq.estrogen.client.config.ConfigSync;
 import dev.mayaqq.estrogen.client.registry.EstrogenKeybinds;
+import dev.mayaqq.estrogen.client.registry.EstrogenRenderType;
 import dev.mayaqq.estrogen.client.registry.EstrogenRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.centrifuge.CentrifugeCogInstance;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.centrifuge.CentrifugeRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.cookieJar.CookieJarRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockRenderer;
+import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockShader;
 import dev.mayaqq.estrogen.client.registry.trinkets.EstrogenPatchesRenderer;
 import dev.mayaqq.estrogen.integrations.ears.EarsCompat;
 import dev.mayaqq.estrogen.platform.ClientPlatform;
@@ -21,11 +23,15 @@ import earth.terrarium.botarium.client.ClientHooks;
 import earth.terrarium.botarium.util.CommonHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 
 public class EstrogenClient {
     public static void init() {
+        DreamBlockShader.register();
+
         ConfigSync.cacheConfig();
         EstrogenRenderer.register();
         EstrogenPonderScenes.register();
@@ -46,6 +52,10 @@ public class EstrogenClient {
                 .factory(CentrifugeCogInstance::new)
                 .skipRender(be -> false)
                 .apply();
+
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            DreamBlockShader.updateCameraPos(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        });
 
         // mod compat
         if (CommonHooks.isModLoaded("ears")) {
