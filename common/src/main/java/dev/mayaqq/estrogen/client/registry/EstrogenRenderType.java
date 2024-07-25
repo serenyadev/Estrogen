@@ -21,7 +21,7 @@ public class EstrogenRenderType extends RenderType {
 
     public static final RenderType DREAM_BLOCK = RenderType.create(
             "dream_block",
-            DefaultVertexFormat.POSITION_TEX,
+            DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
             256,
             false,

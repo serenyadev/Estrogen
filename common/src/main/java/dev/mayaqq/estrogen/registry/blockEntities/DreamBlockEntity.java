@@ -1,5 +1,6 @@
 package dev.mayaqq.estrogen.registry.blockEntities;
 
+import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockShader;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.DreamBlockTexture;
 import dev.mayaqq.estrogen.registry.EstrogenBlockEntities;
 import net.fabricmc.api.EnvType;
@@ -51,5 +52,8 @@ public class DreamBlockEntity extends BlockEntity {
 
     public boolean shouldRenderFace(Direction face) {
         return Block.shouldRenderFace(this.getBlockState(), this.level, this.getBlockPos(), face, this.getBlockPos().relative(face));
+    }
+    public boolean shouldRenderBack(Direction face) {
+        return !(this.level.getBlockEntity(this.getBlockPos().relative(face.getOpposite())) instanceof DreamBlockEntity);
     }
 }

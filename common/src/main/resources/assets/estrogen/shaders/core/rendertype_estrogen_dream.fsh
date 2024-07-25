@@ -1,61 +1,46 @@
 #version 150
 
+#moj_import <matrix.glsl>
+
 uniform sampler2D Sampler0;
 
-uniform float LayerOffset;
+in vec4 vertexColor;
+in vec4 texProj0;
 
-in vec3 view;
-in vec3 uv3d;
+const mat4 SCALE_TRANSLATE = mat4(
+    0.5, 0.0, 0.0, 0.25,
+    0.0, 0.5, 0.0, 0.25,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1.0
+);
 
-vec2 angle2vec2(float radians) {
-    return vec2(cos(radians), sin(radians));
-}
-
-vec2 portal_layer_uv(float rotation, float view_depth) {
-    vec2 dir_vec = angle2vec2(radians(rotation));
-    mat2 rotate = mat2(
-        dir_vec.x, -dir_vec.y,
-        dir_vec.y, dir_vec.x
+mat4 end_portal_layer(float layer) {
+    mat4 translate = mat4(
+        1.0, 0.0, 0.0, 17.0 / layer,
+        0.0, 1.0, 0.0, (2.0 + layer / 1.5),
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
     );
-    return (uv3d.st - (view / view.y).xz * view_depth) * rotate;
+
+    mat2 rotate = mat2_rotate_z(radians((layer * layer * 4321.0 + layer * 9.0) * 2.0));
+
+    mat2 scale = mat2((4.5 - layer / 4.0) * 2.0);
+
+    return mat4(scale * rotate) * translate * SCALE_TRANSLATE;
 }
 
 out vec4 fragColor;
 
 void main() {
-    const vec4[16] COLORS = vec4[](
-        vec4(0.022087, 0.098399, 0.110818, 1.0),
-        vec4(0.011892, 0.095924, 0.089485, 1.0),
-        vec4(0.027636, 0.101689, 0.100326, 1.0),
-        vec4(0.046564, 0.109883, 0.114838, 1.0),
-        vec4(0.064901, 0.117696, 0.097189, 1.0),
-        vec4(0.063761, 0.086895, 0.123646, 1.0),
-        vec4(0.084817, 0.111994, 0.166380, 1.0),
-        vec4(0.097489, 0.154120, 0.091064, 1.0),
-        vec4(0.106152, 0.131144, 0.195191, 1.0),
-        vec4(0.097721, 0.110188, 0.187229, 1.0),
-        vec4(0.133516, 0.138278, 0.148582, 1.0),
-        vec4(0.070006, 0.243332, 0.235792, 1.0),
-        vec4(0.196766, 0.142899, 0.214696, 1.0),
-        vec4(0.047281, 0.315338, 0.321970, 1.0),
-        vec4(0.204675, 0.390010, 0.302066, 1.0),
-        vec4(0.060716, 0.236115, 0.496118, 1.0)
-    );
-
-    vec4 color = texture(Sampler0, portal_layer_uv(0.0, uv3d.p - (65.0 * sign(view.y))) * 0.125);
-
-    vec2 uv_offset = vec2(0.0, LayerOffset);
-    for (int i = 1; i < 5; i++) {
-        for (int layer_sign = -1; layer_sign <= 1; layer_sign += 2) {
-            float layer_num = float(i * layer_sign) * -sign(view.y);
-            float layer_rotation = (layer_num * layer_num * 4321.0 + layer_num * 9.0) * 2.0;
-            float layer_scale = i == 1 ? 0.5 : 0.0625;
-            float layer_depth = (15.5 - float(i) * 15 / 4) * float(layer_sign) * -sign(view.y);
-            float layer_view_depth = uv3d.p + layer_depth;
-            if (sign(layer_view_depth) != sign(view.y)) {
-                color += texture(Sampler0, portal_layer_uv(layer_rotation, layer_view_depth) * layer_scale + uv_offset);
-            }
-        }
-    }
-    fragColor = vec4(color.rgb, 1.0);
+    fragColor = vertexColor;
+    //if (isOutline > 0.5) {
+    //    fragColor = vec4(1.);
+    //} else {
+    //    // vec3 color = textureProj(Sampler0, texProj0).rgb;
+    //    // for (int i = 0; i < 4; i++) {
+    //    //     color += textureProj(Sampler0, texProj0 * end_portal_layer(float(i + 1))).rgb;
+    //    // }
+    //    // fragColor = vec4(color, 1.0);
+    //    fragColor = vec4(0., 0., 0., 1.);
+    //}
 }

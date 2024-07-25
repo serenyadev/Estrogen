@@ -53,10 +53,6 @@ public class EstrogenClient {
                 .skipRender(be -> false)
                 .apply();
 
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            DreamBlockShader.updateCameraPos(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
-        });
-
         // mod compat
         if (CommonHooks.isModLoaded("ears")) {
             EarsCompat.boob();
