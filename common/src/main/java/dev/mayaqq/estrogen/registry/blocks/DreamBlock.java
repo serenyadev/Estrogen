@@ -88,7 +88,7 @@ public class DreamBlock extends BaseEntityBlock {
             if (movement.y() == 0 && lookAngle.y() != 0) lookAngle = lookAngle.multiply(1, -1, 1);
             if (movement.z() == 0 && lookAngle.z() != 0) lookAngle = lookAngle.multiply(1, 1, -1);
 
-            player.setDeltaMovement(lookAngle.scale(2));
+            player.setDeltaMovement(lookAngle.scale(1.2));
         }
     }
 }

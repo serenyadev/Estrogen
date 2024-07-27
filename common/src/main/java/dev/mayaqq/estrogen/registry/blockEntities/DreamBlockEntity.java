@@ -51,7 +51,10 @@ public class DreamBlockEntity extends BlockEntity {
     }
 
     public boolean shouldRenderFace(Direction face) {
-        return Block.shouldRenderFace(this.getBlockState(), this.level, this.getBlockPos(), face, this.getBlockPos().relative(face));
+        return (
+                Block.shouldRenderFace(this.getBlockState(), this.level, this.getBlockPos(), face, this.getBlockPos().relative(face))
+                && !(this.level.getBlockEntity(this.getBlockPos().relative(face)) instanceof DreamBlockEntity)
+        );
     }
     public boolean shouldRenderBack(Direction face) {
         return !(this.level.getBlockEntity(this.getBlockPos().relative(face.getOpposite())) instanceof DreamBlockEntity);
