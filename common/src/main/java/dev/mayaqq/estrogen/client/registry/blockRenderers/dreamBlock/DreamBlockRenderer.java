@@ -32,55 +32,50 @@ public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity
     }
 
     private void renderCube(DreamBlockEntity blockEntity, Matrix4f pose, VertexConsumer consumer) {
-        float f = this.getOffsetDown();
-        float g = this.getOffsetUp();
         this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, Direction.SOUTH);
         this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, Direction.NORTH);
         this.renderFace(blockEntity, pose, consumer, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, Direction.EAST);
         this.renderFace(blockEntity, pose, consumer, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, Direction.WEST);
-        this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, f, f, 0.0f, 0.0f, 1.0f, 1.0f, Direction.DOWN);
-        this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, g, g, 1.0f, 1.0f, 0.0f, 0.0f, Direction.UP);
+        this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, Direction.DOWN);
+        this.renderFace(blockEntity, pose, consumer, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, Direction.UP);
     }
 
     private void renderFace(DreamBlockEntity blockEntity, Matrix4f pose, VertexConsumer consumer, float x0, float x1, float y0, float y1, float z0, float z1, float z2, float z3, Direction direction) {
-        if (blockEntity.shouldRenderFace(direction)) {
-            addFrontVertex(pose, consumer, x0, y0, z0);
-            addFrontVertex(pose, consumer, x1, y0, z1);
-            addFrontVertex(pose, consumer, x1, y1, z2);
-            addFrontVertex(pose, consumer, x0, y1, z3);
-        }
 
-        if (blockEntity.shouldRenderBack(direction)) {
-            addBackVertex(pose, consumer, x0, y0, z0, direction);
-            addBackVertex(pose, consumer, x1, y0, z1, direction);
-            addBackVertex(pose, consumer, x1, y1, z2, direction);
-            addBackVertex(pose, consumer, x0, y1, z3, direction);
+        addInnerVertex(blockEntity, pose, consumer, x0, y0, z0);
+        addInnerVertex(blockEntity, pose, consumer, x1, y0, z1);
+        addInnerVertex(blockEntity, pose, consumer, x1, y1, z2);
+        addInnerVertex(blockEntity, pose, consumer, x0, y1, z3);
+
+        if (!blockEntity.isTouchingDreamBlock(direction)) {
+            addVertex(pose, consumer, x0, y1, z3, true);
+            addVertex(pose, consumer, x1, y1, z2, true);
+            addVertex(pose, consumer, x1, y0, z1, true);
+            addVertex(pose, consumer, x0, y0, z0, true);
         }
     }
 
-    private void addFrontVertex(Matrix4f pose, VertexConsumer consumer, float x, float y, float z) {
+    /**
+     * Vertices for the inner faces, which will have the shader applied.
+     * Vertices are moved when there are neighboring dream blocks, so that their interiors connect.
+     */
+    private void addInnerVertex(DreamBlockEntity blockEntity, Matrix4f pose, VertexConsumer consumer, float x, float y, float z) {
+        // ternary nightmare
+        float x2 = blockEntity.isTouchingDreamBlock(x > 0.5 ? Direction.EAST : Direction.WEST) ? x : x * 7f/8f + 1f/16f;
+        float y2 = blockEntity.isTouchingDreamBlock(y > 0.5 ? Direction.UP : Direction.DOWN) ? y : y * 7f/8f + 1f/16f;
+        float z2 = blockEntity.isTouchingDreamBlock(z > 0.5 ? Direction.SOUTH : Direction.NORTH) ? z : z * 7f/8f + 1f/16f;
+
+        addVertex(pose, consumer, x2, y2, z2, false);
+    }
+
+    private void addVertex(Matrix4f pose, VertexConsumer consumer, float x, float y, float z, boolean isBorder) {
         consumer.vertex(pose, x, y, z);
-        consumer.color(0, 0, 0, 255);
+        if (isBorder) {
+            consumer.color(255, 255, 255, 255);
+        } else {
+            consumer.color(0, 0, 0, 255);
+        }
         consumer.endVertex();
-    }
-    private void addBackVertex(Matrix4f pose, VertexConsumer consumer, float x, float y, float z, Direction direction) {
-        var position = new Vec3(x, y, z)
-                .subtract(0.5, 0.5, 0.5)
-                .subtract(Vec3.atLowerCornerOf(direction.getNormal()).scale(0.5))
-                .scale(0.1/0.5)
-                .subtract(Vec3.atLowerCornerOf(direction.getNormal()).scale(0.99))
-                .add(new Vec3(x, y, z));
-        consumer.vertex(pose, (float) position.x, (float) position.y, (float) position.z);
-        consumer.color(255, 255, 255, 255);
-        consumer.endVertex();
-    }
-
-    protected float getOffsetUp() {
-        return 1.0F;
-    }
-
-    protected float getOffsetDown() {
-        return 0.0F;
     }
 
     public int getViewDistance() {
