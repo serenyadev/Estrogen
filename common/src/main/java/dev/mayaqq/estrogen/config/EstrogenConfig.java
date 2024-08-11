@@ -98,6 +98,7 @@ public class EstrogenConfig {
         public final ConfigGroup compat = group(1, "compat", "Compatibility between other mods settings");
         public final ConfigBool ears = b(true, "ears", "Enable ears Compatibility");
         public final ConfigBool figura = b(true, "figura", "Enable figura Compatibility");
+        public final ConfigBool iris = b(false, "iris", "Enable iris Compatibility");
 
         public final ConfigGroup sounds = group(1, "sounds", "Settings for custom sounds and music");
         public final ConfigBool ambientMusic = b(true, "ambientMusic", "Enable ambient music which starts playing on specific moments");
