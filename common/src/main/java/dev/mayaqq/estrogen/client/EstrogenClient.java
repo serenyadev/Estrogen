@@ -15,6 +15,7 @@ import dev.mayaqq.estrogen.client.registry.blockRenderers.centrifuge.CentrifugeR
 import dev.mayaqq.estrogen.client.registry.blockRenderers.cookieJar.CookieJarRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockShader;
+import dev.mayaqq.estrogen.client.registry.entityRenderers.moth.MothRenderer;
 import dev.mayaqq.estrogen.client.registry.trinkets.EstrogenPatchesRenderer;
 import dev.mayaqq.estrogen.integrations.ears.EarsCompat;
 import dev.mayaqq.estrogen.platform.ClientPlatform;
@@ -44,6 +45,8 @@ public class EstrogenClient {
         ClientHooks.registerBlockEntityRenderers(EstrogenBlockEntities.COOKIE_JAR.get(), CookieJarRenderer::new);
         ClientHooks.registerBlockEntityRenderers(EstrogenBlockEntities.DREAM_BLOCK.get(), DreamBlockRenderer::new);
 
+        ClientHooks.registerEntityRenderer(EstrogenEntities.MOTH, MothRenderer::new);
+
         CreateClient.MODEL_SWAPPER.getCustomBlockModels().register(EstrogenBlocks.DORMANT_DREAM_BLOCK.getId(), new CTModelProvider(new SimpleCTBehaviour(EstrogenSpriteShifts.DORMANT_DREAM_BLOCK)));
 
         EstrogenFluids.FLUIDS.stream().forEach(fluid -> ClientPlatform.fluidRenderLayerMap(fluid.get(), RenderType.translucent()));
@@ -60,8 +63,7 @@ public class EstrogenClient {
     }
 
     @Environment(EnvType.CLIENT)
-    private record CTModelProvider(
-            ConnectedTextureBehaviour behavior) implements NonNullFunction<BakedModel, BakedModel> {
+    private record CTModelProvider(ConnectedTextureBehaviour behavior) implements NonNullFunction<BakedModel, BakedModel> {
         @Override
         public BakedModel apply(BakedModel bakedModel) {
             return new CTModel(bakedModel, behavior);

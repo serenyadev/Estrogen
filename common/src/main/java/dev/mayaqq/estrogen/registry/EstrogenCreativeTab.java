@@ -28,6 +28,7 @@ public class EstrogenCreativeTab {
         items.add(ESTROGEN_PILL.get().getDefaultInstance());
         items.add(CRYSTAL_ESTROGEN_PILL.get().getDefaultInstance());
         items.add(BALLS.get().getDefaultInstance());
+        items.add(MOTH_FUZZ.get().getDefaultInstance());
         items.add(TESTOSTERONE_CHUNK.get().getDefaultInstance());
         items.add(TESTOSTERONE_POWDER.get().getDefaultInstance());
         items.add(USED_FILTER.get().getDefaultInstance());
@@ -35,12 +36,16 @@ public class EstrogenCreativeTab {
         items.add(HORSE_URINE_BOTTLE.get().getDefaultInstance());
         items.add(ESTROGEN_PATCHES.get().getFullStack());
         items.add(ESTROGEN_PATCHES.get().getDefaultInstance());
+        items.add(THIGH_HIGHS.get().getDefaultInstance());
+        items.add(MOTH_ELYTRA.get().getDefaultInstance());
         items.add(UWU.get().getDefaultInstance());
         items.add(CENTRIFUGE.get().getDefaultInstance());
         items.add(COOKIE_JAR.get().getDefaultInstance());
         items.add(DREAM_BOTTLE.get().getDefaultInstance());
         items.add(DORMANT_DREAM_BLOCK.get().getDefaultInstance());
         items.add(ESTROGEN_PILL_BLOCK.get().getDefaultInstance());
+        items.add(MOTH_WOOL.get().getDefaultInstance());
+        items.add(MOTH_SEAT.get().getDefaultInstance());
         items.add(tippedArrow(EstrogenPotions.ESTROGEN_POTION.get()));
         items.add(MOLTEN_SLIME_BUCKET.get().getDefaultInstance());
         items.add(TESTOSTERONE_MIXTURE_BUCKET.get().getDefaultInstance());
@@ -48,6 +53,7 @@ public class EstrogenCreativeTab {
         items.add(FILTRATED_HORSE_URINE_BUCKET.get().getDefaultInstance());
         items.add(HORSE_URINE_BUCKET.get().getDefaultInstance());
         items.add(MOLTEN_AMETHYST_BUCKET.get().getDefaultInstance());
+        items.add(MOTH_EGG.get().getDefaultInstance());
         return items.stream();
     }
 
