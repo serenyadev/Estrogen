@@ -15,6 +15,7 @@
     "client.PlayerEntityModelMixin",
     "client.PlayerEntityRendererMixin",
     "client.ReceivingLevelScreenMixin",
+    "client.ShadeSeperatingVertexConsumerMixin",
     "client.TextRendererMixin"
   ],
   "injectors": {
