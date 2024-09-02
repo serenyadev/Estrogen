@@ -118,8 +118,8 @@ public class CosmeticTexture {
                     this.future = DownloadedAsset.runDownload(
                             this.url,
                             this.file,
-                            stream -> this.load(() -> stream).ifPresent(this::loadCallback)
-                    );
+                            stream -> this.load(() -> stream)
+                    ).thenAccept(opt -> opt.ifPresent(this::loadCallback));
                 }
             }
         }

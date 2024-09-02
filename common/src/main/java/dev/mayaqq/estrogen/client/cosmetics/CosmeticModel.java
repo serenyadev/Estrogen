@@ -83,8 +83,8 @@ public class CosmeticModel {
                     future = DownloadedAsset.runDownload(
                         url,
                         file,
-                        stream -> this.load(() -> new InputStreamReader(stream)).ifPresent(this::bake)
-                    );
+                        stream -> this.load(() -> new InputStreamReader(stream))
+                    ).thenAccept(opt -> opt.ifPresent(this::bake));
                 }
             }
         }

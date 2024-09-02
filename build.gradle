@@ -41,6 +41,7 @@ subprojects {
         modCompileOnly("mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}")
 
         include implementation("com.teamresourceful:resourceful-cosmetics-4j:${rootProject.resourceful_cosmetics_version}")
+        include implementation("de.javagl:obj:0.4.0")
     }
 }
 
@@ -72,6 +73,7 @@ allprojects {
         maven { name = "Figura Maven"; description = "Figura"; url = "https://maven.figuramc.org/releases" }
         maven { name = "DevAuth maven"; description = "DevAuth"; url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
         maven { name = "Jitpack maven"; description = "Mixin Extras & Fabric ASM"; url = "https://jitpack.io/" } //NOTE: LEAVE THIS AS LAST
+        mavenCentral()
     }
 
     tasks.withType(JavaCompile).configureEach {

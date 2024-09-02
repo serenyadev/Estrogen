@@ -4,11 +4,9 @@ import com.google.common.hash.Hashing;
 import com.teamresourceful.resourcefullib.common.lib.Constants;
 import dev.mayaqq.estrogen.Estrogen;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +17,8 @@ import java.net.http.HttpResponse;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 public class DownloadedAsset {
     public static final Set<String> ALLOWED_DOMAINS = Set.of(
@@ -35,10 +34,10 @@ public class DownloadedAsset {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    public static CompletableFuture<Void> runDownload(String uri, File file, Consumer<InputStream> callback) {
-        return CompletableFuture.runAsync(() ->
-                createUrl(uri).ifPresent(url -> {
-
+    public static <T> CompletableFuture<Optional<T>> runDownload(String uri, File file, Function<InputStream, Optional<T>> callback) {
+        Executor background = Util.backgroundExecutor();
+        return CompletableFuture.supplyAsync(() ->
+                createUrl(uri).map(url -> {
                     try {
                         HttpRequest request = HttpRequest.newBuilder(url)
                                 .GET()
@@ -47,12 +46,12 @@ public class DownloadedAsset {
                         HttpResponse<InputStream> stream = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
                         if (stream.statusCode() / 100 != 2) {
                             Estrogen.LOGGER.error("Failed to download asset: {} Status Code: {}", uri, stream.statusCode());
-                            return;
+                            return Optional.<T>empty();
                         }
 
                         FileUtils.copyInputStreamToFile(stream.body(), file);
                         try(InputStream fileStream = FileUtils.openInputStream(file)) {
-                            callback.accept(fileStream);
+                            return callback.apply(fileStream);
                         } catch (IOException ex) {
                             Estrogen.LOGGER.error("Failed to process asset: {}", uri, ex);
                         }
@@ -60,7 +59,9 @@ public class DownloadedAsset {
                     } catch (IOException | InterruptedException ex) {
                         Estrogen.LOGGER.error("Failed to download asset: {}", uri, ex);
                     }
-                }), Util.backgroundExecutor());
+
+                    return Optional.<T>empty();
+                }), background).thenApplyAsync(opt -> opt.flatMap(opt2 -> opt2), background);
     }
 
     @SuppressWarnings({"deprecation"})
@@ -69,7 +70,7 @@ public class DownloadedAsset {
         return Hashing.sha1().hashUnencodedChars(hashedUrl).toString();
     }
 
-    private static Optional<URI> createUrl(@Nullable String string) {
+    public static Optional<URI> createUrl(@Nullable String string) {
         if (string == null) return Optional.empty();
         try {
             URI url = URI.create(string);

@@ -24,7 +24,7 @@ public final class CosmeticModelBakery {
 
     private CosmeticModelBakery() {}
 
-    public static BakedCosmeticModel bake(List<BlockElement> elements) {
+    public static BakedCosmeticModel bake(List<BlockElement> elements, String name) {
         int vertices = elements.stream().mapToInt(e -> e.faces.size()).sum() * 4;
         int[] vertexData = new int[vertices * STRIDE];
 
@@ -90,7 +90,7 @@ public final class CosmeticModelBakery {
             while (!transforms.clear()) transforms.popPose();
         }
 
-        return new BakedCosmeticModel(vertexData, vertices, min, max);
+        return new BakedCosmeticModel(name, vertexData, vertices, min, max);
     }
 
     private static void putVertex(int[] data, int index, Vector4f position, BlockFaceUV uv, Vector3f normal) {
