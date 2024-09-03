@@ -25,14 +25,15 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
     private static final Vector3f LIGHT_1 = new Vector3f(-0.8f, -1.0f, 1.0F).normalize();
 
     private PartPose pose;
-
     private Cosmetic cosmetic;
+
+    private ContentScaling contentScalingMode = ContentScaling.SCALE_Y;
     private float scale = 0.5f;
     private float rotationSpeed;
-    private float animRot;
-    private ContentScaling contentScalingMode = ContentScaling.SCALE_Y;
-    private LerpedFloat overlayAnimation = LerpedFloat.linear();
+
+    private final LerpedFloat overlayAnimation = LerpedFloat.linear();
     private boolean isHovered;
+    private float animRot;
 
     public boolean debug;
 
@@ -161,6 +162,20 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         this.height = height;
         return this;
     }
+    public CosmeticIconWidget withContentScaling(ContentScaling mode) {
+        this.contentScalingMode = mode;
+        return this;
+    }
+
+    public CosmeticIconWidget withPose(PartPose pose) {
+        this.pose = pose;
+        return this;
+    }
+
+    public CosmeticIconWidget withDefaultPose() {
+        this.pose = DEFAULT_POSE;
+        return this;
+    }
 
     public boolean rotateOrScale() {
         return pose.xRot != 0 || pose.yRot != 0 || pose.zRot != 0 || scale != 1.0f || rotationSpeed != 0 || animRot != 0;
@@ -168,14 +183,6 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
 
     public void setCosmetic(Cosmetic cosmetic) {
         this.cosmetic = cosmetic;
-    }
-
-    public void setContentScalingMode(ContentScaling mode) {
-        this.contentScalingMode = mode;
-    }
-
-    public void setPose(PartPose pose) {
-        this.pose = pose;
     }
 
     public enum ContentScaling {
