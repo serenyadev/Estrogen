@@ -43,7 +43,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         this.cosmetic = cosmetic;
         this.pose = (referencePose != null) ? referencePose : DEFAULT_POSE;
         this.z = 150;
-        this.hoverPredicate = (mouseX, mouseY) -> mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
+        defaultHoverPredicate();
     }
 
     public static CosmeticIconWidget of(Cosmetic cosmetic) {
@@ -176,6 +176,11 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
 
     public CosmeticIconWidget withHoverPredicate(HoverPredicate predicate) {
         this.hoverPredicate = predicate;
+        return this;
+    }
+
+    public CosmeticIconWidget defaultHoverPredicate() {
+        this.hoverPredicate = (mouseX, mouseY) -> mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
         return this;
     }
 
