@@ -91,7 +91,7 @@ public class CosmeticModel {
 
         private void bake(BlockModel base) {
             try {
-                this.result = CosmeticModelBakery.bake(base.getElements());
+                this.result = CosmeticModelBakery.bake(base.getElements(), base.name);
             } catch (Exception e) {
                 Estrogen.LOGGER.error("Failed to bake cosmetic model: {}", url, e);
             }

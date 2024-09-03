@@ -1,7 +1,17 @@
 package dev.mayaqq.estrogen.client.cosmetics;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import de.javagl.obj.FloatTuple;
+import de.javagl.obj.Obj;
+import de.javagl.obj.ObjFace;
+import de.javagl.obj.ObjGroup;
+import dev.mayaqq.estrogen.client.cosmetics.models.GroupedBakedCosmeticModel;
+import dev.mayaqq.estrogen.client.cosmetics.models.TransformableMesh;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.client.renderer.FaceInfo;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.core.Direction;
@@ -162,5 +172,38 @@ public final class CosmeticModelBakery {
 
     public static float unpackNZ(int packedNormal) {
         return ((byte) ((packedNormal >>> 16) & 0xFF)) * UNPACK;
+    }
+
+    public static GroupedBakedCosmeticModel bakeObj(Obj obj, String name) {
+        Map<String, TransformableMesh> meshes = new Object2ObjectArrayMap<>();
+        IntList data = new IntArrayList();
+
+        for (int i = 0; i < obj.getNumGroups(); i++) {
+            ObjGroup group = obj.getGroup(i);
+            int groupVertices = 0;
+
+            for (int j = 0; j < group.getNumFaces(); j++) {
+                ObjFace face = group.getFace(i);
+                groupVertices += face.getNumVertices();
+                for (int k = 0; k < face.getNumVertices(); k++) {
+                    FloatTuple pos = obj.getVertex(face.getVertexIndex(k));
+                    FloatTuple uv = obj.getTexCoord(face.getTexCoordIndex(k));
+                    FloatTuple normal = obj.getNormal(face.getNormalIndex(k));
+
+                    // Vertex W and uv W are ignored as they don't exist in minecraft
+                    data.add(Float.floatToRawIntBits(pos.getX()));
+                    data.add(Float.floatToRawIntBits(pos.getY()));
+                    data.add(Float.floatToRawIntBits(pos.getZ()));
+                    data.add(Float.floatToRawIntBits(uv.getX()));
+                    data.add(Float.floatToRawIntBits(1 - uv.getY()));
+                    data.add(packNormal(normal.getX(), normal.getY(), normal.getZ()));
+
+                }
+            }
+            TransformableMesh mesh = new TransformableMesh(data.toIntArray(), groupVertices, null);
+            meshes.put(group.getName(), mesh);
+            data.clear();
+        }
+        return new GroupedBakedCosmeticModel(meshes, new Vector3f(), new Vector3f(), name);
     }
 }
