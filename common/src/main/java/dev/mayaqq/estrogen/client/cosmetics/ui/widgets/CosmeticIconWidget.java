@@ -28,6 +28,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
     private Cosmetic cosmetic;
 
     private ContentScaling contentScalingMode = ContentScaling.SCALE_Y;
+    private HoverPredicate hoverPredicate;
     private float scale = 0.5f;
     private float rotationSpeed;
 
@@ -42,6 +43,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         this.cosmetic = cosmetic;
         this.pose = (referencePose != null) ? referencePose : DEFAULT_POSE;
         this.z = 150;
+        this.hoverPredicate = (mouseX, mouseY) -> mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
     }
 
     public static CosmeticIconWidget of(Cosmetic cosmetic) {
@@ -53,7 +55,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         super.beforeRender(graphics, mouseX, mouseY, partialTicks);
 
         if(!visible) return;
-        boolean hover = mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
+        boolean hover = hoverPredicate.test(mouseX, mouseY);
 
         if(hover != isHovered) {
             isHovered = hover;
@@ -172,6 +174,15 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         return this;
     }
 
+    public CosmeticIconWidget withHoverPredicate(HoverPredicate predicate) {
+        this.hoverPredicate = predicate;
+        return this;
+    }
+
+    public CosmeticIconWidget neverHover() {
+        return this.withHoverPredicate(($1, $2) -> false);
+    }
+
     public CosmeticIconWidget withDefaultPose() {
         this.pose = DEFAULT_POSE;
         return this;
@@ -190,5 +201,9 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         SCALE_Y,
         SQUISH,
         NONE;
+    }
+
+    public interface HoverPredicate {
+        boolean test(int mouseX, int mouseY);
     }
 }
