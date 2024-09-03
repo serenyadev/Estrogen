@@ -28,7 +28,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
     private Cosmetic cosmetic;
 
     private ContentScaling contentScalingMode = ContentScaling.SCALE_Y;
-    private HoverPredicate hoverPredicate;
+    private HighlightPredicate hoverPredicate;
     private float scale = 0.5f;
     private float rotationSpeed;
 
@@ -43,7 +43,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         this.cosmetic = cosmetic;
         this.pose = (referencePose != null) ? referencePose : DEFAULT_POSE;
         this.z = 150;
-        defaultHoverPredicate();
+        defaultHighlightPredicate();
     }
 
     public static CosmeticIconWidget of(Cosmetic cosmetic) {
@@ -55,7 +55,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         super.beforeRender(graphics, mouseX, mouseY, partialTicks);
 
         if(!visible) return;
-        boolean hover = hoverPredicate.test(mouseX, mouseY);
+        boolean hover = hoverPredicate.test(this, mouseX, mouseY);
 
         if(hover != isHovered) {
             isHovered = hover;
@@ -174,18 +174,18 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         return this;
     }
 
-    public CosmeticIconWidget withHoverPredicate(HoverPredicate predicate) {
+    public CosmeticIconWidget withHighlightPredicate(HighlightPredicate predicate) {
         this.hoverPredicate = predicate;
         return this;
     }
 
-    public CosmeticIconWidget defaultHoverPredicate() {
-        this.hoverPredicate = (mouseX, mouseY) -> mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
+    public CosmeticIconWidget defaultHighlightPredicate() {
+        this.hoverPredicate = HighlightPredicate.DEFAULT;
         return this;
     }
 
-    public CosmeticIconWidget neverHover() {
-        return this.withHoverPredicate(($1, $2) -> false);
+    public CosmeticIconWidget neverHighlight() {
+        return this.withHighlightPredicate(($0, $1, $2) -> false);
     }
 
     public CosmeticIconWidget withDefaultPose() {
@@ -208,7 +208,9 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         NONE;
     }
 
-    public interface HoverPredicate {
-        boolean test(int mouseX, int mouseY);
+    public interface HighlightPredicate {
+        HighlightPredicate DEFAULT = (self, mouseX, mouseY) -> mouseX >= self.getX() && mouseX <= self.getX() + self.width && mouseY >= self.getY() && mouseY <= self.getY() + self.height;
+
+        boolean test(CosmeticIconWidget widget, int mouseX, int mouseY);
     }
 }
