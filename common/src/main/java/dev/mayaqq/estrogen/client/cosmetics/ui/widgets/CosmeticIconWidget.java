@@ -53,7 +53,7 @@ public class CosmeticIconWidget extends AbstractSimiWidget {
         super.beforeRender(graphics, mouseX, mouseY, partialTicks);
 
         if(!visible) return;
-        boolean hover = mouseX > this.getX() && mouseX < this.getX() + width && mouseY > this.getY() && mouseY < this.getY() + height;
+        boolean hover = mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
 
         if(hover != isHovered) {
             isHovered = hover;
