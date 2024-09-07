@@ -5,6 +5,7 @@ import com.jozufozu.flywheel.api.struct.StructType;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.simibubi.create.CreateClient;
+import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.foundation.render.SuperByteBufferCache;
 import dev.mayaqq.estrogen.Estrogen;
 import dev.mayaqq.estrogen.client.cosmetics.render.CosmeticRenderLayer;
@@ -38,15 +39,11 @@ public class EstrogenRenderer {
 
     // Outline stuff
     public static final ResourceLocation OUTLINE_POST_SHADER = Estrogen.id("shaders/post/outline.json");
-    private static PostChain outlineChain;
-    private static RenderTarget outlineTarget;
+    private static UIRenderHelper.CustomRenderTarget outlineTarget;
 
-    public static RenderTarget getOutlineTarget() {
+    public static UIRenderHelper.CustomRenderTarget getOutlineTarget() {
+        if(outlineTarget == null) reloadPostShaders();
         return outlineTarget;
-    }
-
-    public static PostChain getOutlineChain() {
-        return outlineChain;
     }
 
     private static PartialModel block(String path) {
@@ -59,15 +56,7 @@ public class EstrogenRenderer {
     }
 
     public static void reloadPostShaders() {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        try {
-            outlineChain = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), OUTLINE_POST_SHADER);
-            outlineChain.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-            outlineTarget = outlineChain.getTempTarget("final");
-        } catch (IOException | JsonParseException ex) {
-            Estrogen.LOGGER.error("Failure", ex);
-        }
+        outlineTarget = UIRenderHelper.CustomRenderTarget.create(Minecraft.getInstance().getWindow());
     }
 
     public static void registerEntityLayers(Function<String, EntityRenderer<? extends Player>> getter) {

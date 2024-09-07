@@ -1,32 +1,22 @@
 package dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
-import dev.mayaqq.estrogen.Estrogen;
 import dev.mayaqq.estrogen.client.ShaderHelper;
-import dev.mayaqq.estrogen.client.cosmetics.BakedCosmeticModel;
-import dev.mayaqq.estrogen.client.registry.EstrogenRenderType;
-import dev.mayaqq.estrogen.client.registry.EstrogenRenderer;
-import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.DreamBlockTexture;
+import dev.mayaqq.estrogen.client.cosmetics.render.outline.OutlineRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.advanced.DynamicDreamTexture;
 import dev.mayaqq.estrogen.config.EstrogenConfig;
 import dev.mayaqq.estrogen.registry.blockEntities.DreamBlockEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity> {
@@ -52,9 +42,9 @@ public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity
             DynamicDreamTexture.setActive();
             this.renderCubeShader(be, matrix4f, multiBufferSource.getBuffer(DynamicDreamTexture.INSTANCE.getRenderType()));
         } else {
-            VertexConsumer buffer = multiBufferSource.getBuffer(EstrogenRenderType.OUTLINE_OF.apply(RenderType.cutout()));
-            if(EstrogenRenderer.getOutlineTarget() == null) EstrogenRenderer.reloadPostShaders();
+            VertexConsumer buffer = OutlineRenderer.getInstance().getBuffer(RenderType.cutout());
             renderCube(STONE.sprite(), poseStack.last(), buffer);
+            OutlineRenderer.getInstance().end();
         }
     }
 
