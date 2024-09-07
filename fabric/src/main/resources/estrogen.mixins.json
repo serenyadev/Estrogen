@@ -6,7 +6,9 @@
   "mixins": [
     "PackInvoker"
   ],
-  "client": [],
+  "client": [
+    "EffectInstanceMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

@@ -41,6 +41,7 @@ public class EstrogenClientEvents {
 
     public static void onReloadRenderer(ClientLevel world) {
         if(!Backend.canUseInstancing(world)) DynamicDreamTexture.resetActive();
+        EstrogenRenderer.reloadPostShaders();
     }
 
     @FunctionalInterface

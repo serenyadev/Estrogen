@@ -1,21 +1,37 @@
 package dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
+import dev.mayaqq.estrogen.Estrogen;
 import dev.mayaqq.estrogen.client.ShaderHelper;
+import dev.mayaqq.estrogen.client.cosmetics.BakedCosmeticModel;
+import dev.mayaqq.estrogen.client.registry.EstrogenRenderType;
+import dev.mayaqq.estrogen.client.registry.EstrogenRenderer;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.DreamBlockTexture;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.advanced.DynamicDreamTexture;
 import dev.mayaqq.estrogen.config.EstrogenConfig;
 import dev.mayaqq.estrogen.registry.blockEntities.DreamBlockEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity> {
+
+    private static final Material STONE = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation("block/stone"));
 
     public DreamBlockRenderer(BlockEntityRendererProvider.Context context) {}
 
@@ -36,21 +52,32 @@ public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity
             DynamicDreamTexture.setActive();
             this.renderCubeShader(be, matrix4f, multiBufferSource.getBuffer(DynamicDreamTexture.INSTANCE.getRenderType()));
         } else {
-            if(be.getTexture() == null) be.setTexture(new DreamBlockTexture(be));
-            DreamBlockTexture texture = be.getTexture();
-            this.renderCube(texture, matrix4f, multiBufferSource.getBuffer(texture.getRenderType()));
-            texture.animate(); // not good to call this each frame will optimize in the future
+            VertexConsumer buffer = multiBufferSource.getBuffer(EstrogenRenderType.OUTLINE_OF.apply(RenderType.cutout()));
+            if(EstrogenRenderer.getOutlineTarget() == null) EstrogenRenderer.reloadPostShaders();
+            renderCube(STONE.sprite(), poseStack.last(), buffer);
         }
     }
 
 
-    private void renderCube(DreamBlockTexture texture, Matrix4f pose, VertexConsumer consumer) {
-        texture.renderFace(pose, consumer, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, Direction.SOUTH, true);
-        texture.renderFace(pose, consumer, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, Direction.NORTH, true);
-        texture.renderFace(pose, consumer, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.EAST, true);
-        texture.renderFace(pose, consumer, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 0.0F, Direction.WEST, true);
-        texture.renderFace(pose, consumer, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, Direction.DOWN, true);
-        texture.renderFace(pose, consumer, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, Direction.UP, true);
+    private void renderCube(TextureAtlasSprite sprite , PoseStack.Pose pose, VertexConsumer consumer) {
+        renderFace(pose, consumer, sprite, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0f);
+        renderFace(pose, consumer, sprite, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+        renderFace(pose, consumer, sprite, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F);
+        renderFace(pose, consumer, sprite, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 0.0F);
+        renderFace(pose, consumer, sprite, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F);
+        renderFace(pose, consumer, sprite, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+    }
+
+    private void renderFace(PoseStack.Pose pose, VertexConsumer consumer, TextureAtlasSprite sprite, float x0, float x1, float y0, float y1, float z0, float z1, float z2, float z3) {
+        consumer.vertex(pose.pose(), x0, y0, z0).color(0xFFFFFFFF).uv(sprite.getU0(), sprite.getV0())
+            .uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), x1, y0, z1).color(0xFFFFFFFF).uv(sprite.getU1(), sprite.getV0())
+            .uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), x1, y1, z2).color(0xFFFFFFFF).uv(sprite.getU1(), sprite.getV1())
+            .uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), x0, y1, z3).color(0xFFFFFFFF).uv(sprite.getU0(), sprite.getV1())
+            .uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(), 0, 1, 0).endVertex();
+
     }
 
     private void renderCubeShader(DreamBlockEntity blockEntity, Matrix4f pose, VertexConsumer consumer) {

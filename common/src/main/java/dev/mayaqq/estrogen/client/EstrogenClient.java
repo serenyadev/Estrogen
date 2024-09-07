@@ -33,7 +33,7 @@ public class EstrogenClient {
     public static void init() {
         Cosmetics.init();
         ConfigSync.cacheConfig();
-        EstrogenRenderer.register();
+        EstrogenRenderer.init();
         EstrogenPonderScenes.register();
         EstrogenKeybinds.register();
 
