@@ -42,7 +42,7 @@ public record Cosmetic(String id, String name, CosmeticTexture texture, Cosmetic
         VertexConsumer consumer = (outline) ? OutlineRenderer.getInstance().getBuffer(renderType) : defaultSource.getBuffer(renderType);
 
         model.renderInto(consumer, matrices.last(), 0xFFFFFFFF, light, overlay);
-        if(outline) OutlineRenderer.getInstance().end();
+        if(outline) OutlineRenderer.getInstance().render();
     }
 
 

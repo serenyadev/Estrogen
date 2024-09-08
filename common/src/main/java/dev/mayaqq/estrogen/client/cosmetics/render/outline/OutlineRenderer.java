@@ -1,6 +1,7 @@
 package dev.mayaqq.estrogen.client.cosmetics.render.outline;
 
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.mayaqq.estrogen.client.registry.EstrogenRenderer;
@@ -9,7 +10,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11C;
 
 import static org.lwjgl.opengl.GL11C.*;
@@ -40,31 +40,35 @@ public class OutlineRenderer implements MultiBufferSource {
         return VertexMultiConsumer.create(builder, new OutlineConsumer(outlineBuilder));
     }
 
-    public void end() {
+    public void render() {
+        Minecraft minecraft = Minecraft.getInstance();
         EstrogenRenderer.getOutlineTarget().bindWrite(false);
-        GL11C.glEnable(GL_STENCIL_TEST);
-        RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        //EstrogenRenderer.getOutlineTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+        GlStateManager._stencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         RenderSystem.enableDepthTest();
 
-        RenderSystem.stencilFunc(GL_ALWAYS, 1, 0xFF);
-        RenderSystem.stencilMask(0xFF);
+        GlStateManager._stencilFunc(GL_ALWAYS, 1, 0xFF);
+        GlStateManager._stencilMask(0xFF);
 
         lastRenderType.setupRenderState();
         BufferUploader.drawWithShader(builder.end());
         lastRenderType.clearRenderState();
 
-        RenderSystem.stencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        RenderSystem.stencilMask(0x00);
-        RenderSystem.disableDepthTest();
+        GlStateManager._stencilFunc(GL_EQUAL, 0, 0xFF);
+        GlStateManager._stencilMask(0x00);
+        GlStateManager._disableDepthTest();
+        GlStateManager._disableCull();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
+        minecraft.gameRenderer.lightTexture().turnOnLightLayer();
         BufferUploader.drawWithShader(outlineBuilder.end());
+        minecraft.gameRenderer.lightTexture().turnOffLightLayer();
 
-        RenderSystem.stencilMask(0xFF);
-        RenderSystem.stencilFunc(GL_ALWAYS, 0, 0xFF);
-        RenderSystem.enableDepthTest();
+        GlStateManager._stencilMask(0xFF);
+        GlStateManager._stencilFunc(GL_ALWAYS, 0, 0xFF);
+        GlStateManager._enableDepthTest();
         EstrogenRenderer.getOutlineTarget().unbindWrite();
-        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+        minecraft.getMainRenderTarget().bindWrite(false);
     }
 
 
@@ -94,7 +98,7 @@ public class OutlineRenderer implements MultiBufferSource {
 
         @Override
         public VertexConsumer color(int red, int green, int blue, int alpha) {
-            delegate.color(0, 0, 0, 255);
+            delegate.color(255, 255, 255, 255);
             return this;
         }
 

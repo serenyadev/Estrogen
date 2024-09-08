@@ -35,6 +35,9 @@ import net.minecraft.network.chat.Component;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
 
+import static org.lwjgl.opengl.GL11C.GL_STENCIL_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_STENCIL_TEST;
+
 public class EstrogenFabricClientEvents {
 
     public static void register() {
@@ -59,6 +62,8 @@ public class EstrogenFabricClientEvents {
 
         WorldRenderEvents.AFTER_SETUP.register(context -> {
             EstrogenRenderer.getOutlineTarget().clear(Minecraft.ON_OSX);
+            GL11C.glEnable(GL_STENCIL_TEST);
+            GL11C.glClear(GL_STENCIL_BUFFER_BIT);
             Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         });
 
@@ -68,40 +73,7 @@ public class EstrogenFabricClientEvents {
 
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-            RenderSystem.assertOnRenderThread();
-            RenderSystem.enableDepthTest();
-            GlStateManager._colorMask(true, true, true, false);
-            GlStateManager._depthMask(false);
-            GlStateManager._viewport(0, 0, outline.width, outline.height);
-
-            ShaderInstance shaderInstance = minecraft.gameRenderer.blitShader;
-            shaderInstance.setSampler("DiffuseSampler", outline.getColorTextureId());
-            Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, outline.width, outline.height, 0.0F, 1000.0F, 3000.0F);
-            RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.DISTANCE_TO_ORIGIN);
-            if (shaderInstance.MODEL_VIEW_MATRIX != null) {
-                shaderInstance.MODEL_VIEW_MATRIX.set((new Matrix4f()).translation(0.0F, 0.0F, -2000.0F));
-            }
-
-            if (shaderInstance.PROJECTION_MATRIX != null) {
-                shaderInstance.PROJECTION_MATRIX.set(matrix4f);
-            }
-
-            shaderInstance.apply();
-            float f = outline.width;
-            float g = outline.height;
-            float h = (float)outline.viewWidth / (float)outline.width;
-            float i = (float)outline.viewHeight / (float)outline.height;
-            Tesselator tesselator = RenderSystem.renderThreadTesselator();
-            BufferBuilder bufferBuilder = tesselator.getBuilder();
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferBuilder.vertex(0.0, g, 0.0).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
-            bufferBuilder.vertex(f, g, 0.0).uv(h, 0.0F).color(255, 255, 255, 255).endVertex();
-            bufferBuilder.vertex(f, 0.0, 0.0).uv(h, i).color(255, 255, 255, 255).endVertex();
-            bufferBuilder.vertex(0.0, 0.0, 0.0).uv(0.0F, i).color(255, 255, 255, 255).endVertex();
-            BufferUploader.draw(bufferBuilder.end());
-            shaderInstance.clear();
-            GlStateManager._depthMask(true);
-            GlStateManager._colorMask(true, true, true, true);
+            outline.blitToScreen(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), true);
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
 

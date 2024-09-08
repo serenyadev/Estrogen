@@ -42,9 +42,10 @@ public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity
             DynamicDreamTexture.setActive();
             this.renderCubeShader(be, matrix4f, multiBufferSource.getBuffer(DynamicDreamTexture.INSTANCE.getRenderType()));
         } else {
-            VertexConsumer buffer = OutlineRenderer.getInstance().getBuffer(RenderType.cutout());
+            OutlineRenderer outline = OutlineRenderer.getInstance();
+            VertexConsumer buffer = outline.getBuffer(RenderType.cutout());
             renderCube(STONE.sprite(), poseStack.last(), buffer);
-            OutlineRenderer.getInstance().end();
+            outline.render();
         }
     }
 
