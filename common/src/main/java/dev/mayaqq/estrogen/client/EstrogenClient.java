@@ -1,5 +1,7 @@
 package dev.mayaqq.estrogen.client;
 
+import com.jozufozu.flywheel.backend.instancing.entity.EntityInstance;
+import com.jozufozu.flywheel.core.hardcoded.ModelPart;
 import com.simibubi.create.foundation.block.connected.CTModel;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.tterrag.registrate.util.nullness.NonNullFunction;

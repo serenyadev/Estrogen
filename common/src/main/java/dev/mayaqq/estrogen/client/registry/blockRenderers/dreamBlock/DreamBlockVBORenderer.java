@@ -3,14 +3,18 @@ package dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Axis;
 import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.texture.advanced.DynamicDreamTexture;
 import dev.mayaqq.estrogen.registry.blockEntities.DreamBlockEntity;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -92,8 +96,17 @@ public class DreamBlockVBORenderer {
 
     }
 
-    public void draw() {
+    public void draw(Camera camera, Frustum frustum) {
         if(buffer.isInvalid() || buffer.getFormat() == null) return;
+        PoseStack modelView = RenderSystem.getModelViewStack();
+        modelView.pushPose();
+        modelView.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+        modelView.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180f));
+
+        Vec3 renderPos = new Vec3(0, 0, 0).subtract(camera.getPosition());
+        modelView.translate(renderPos.x, renderPos.y, renderPos.z);
+
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -106,6 +119,7 @@ public class DreamBlockVBORenderer {
         Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
+        modelView.popPose();
     }
 
     private record RenderInfo(DreamBlockEntity be, Vec3 position, int texU, int texV) {}

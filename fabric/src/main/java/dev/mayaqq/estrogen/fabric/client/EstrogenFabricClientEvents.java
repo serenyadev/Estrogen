@@ -43,8 +43,8 @@ public class EstrogenFabricClientEvents {
 
         EstrogenClientEvents.registerModelLayer((location, definition) -> EntityModelLayerRegistry.registerModelLayer(location, definition::get));
 
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-            DreamBlockVBORenderer.INSTANCE.draw();
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+            DreamBlockVBORenderer.INSTANCE.draw(context.camera(), null);
         });
 
     }
