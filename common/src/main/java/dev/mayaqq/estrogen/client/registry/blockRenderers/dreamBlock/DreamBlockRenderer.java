@@ -17,6 +17,8 @@ import org.joml.Matrix4f;
 
 public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity> {
 
+    private boolean bl = false;
+
     public DreamBlockRenderer(BlockEntityRendererProvider.Context context) {}
 
     public static boolean useAdvancedRenderer() {
@@ -32,14 +34,14 @@ public class DreamBlockRenderer extends SafeBlockEntityRenderer<DreamBlockEntity
 
         if (useAdvancedRenderer()) {
             if (be.getTexture() != null) be.setTexture(null);
-            DynamicDreamTexture.INSTANCE.prepare();
+            DynamicDreamTexture.IMMEDIATE.prepare();
             DynamicDreamTexture.setActive();
-            this.renderCubeShader(be, matrix4f, multiBufferSource.getBuffer(DynamicDreamTexture.INSTANCE.getRenderType()));
+            this.renderCubeShader(be, matrix4f, multiBufferSource.getBuffer(DynamicDreamTexture.IMMEDIATE.getRenderType()));
         } else {
-            if(be.getTexture() == null) be.setTexture(new DreamBlockTexture(be));
-            DreamBlockTexture texture = be.getTexture();
-            this.renderCube(texture, matrix4f, multiBufferSource.getBuffer(texture.getRenderType()));
-            texture.animate(); // not good to call this each frame will optimize in the future
+            if(!bl) {
+                DreamBlockVBORenderer.INSTANCE.addRenderedBlock(be, 0, 0);
+            }
+            bl = true;
         }
     }
 

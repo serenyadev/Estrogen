@@ -82,15 +82,6 @@ public class DreamBlockTexture {
 
         // Simple face culling TODO: better way of doing this
         if(cull && level != null && level.getBlockState(pos.relative(direction)).is(EstrogenBlocks.DREAM_BLOCK.get())) return;
-
-        consumer.vertex(pose, x0, y0, z0).color(0xFFFFFFFF).uv(map.getU0(direction), map.getV0(direction))
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(new Matrix3f()), 0, 1, 0).endVertex();
-        consumer.vertex(pose, x1, y0, z1).color(0xFFFFFFFF).uv(map.getU1(direction), map.getV0(direction))
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(new Matrix3f()), 0, 1, 0).endVertex();
-        consumer.vertex(pose, x1, y1, z2).color(0xFFFFFFFF).uv(map.getU1(direction), map.getV1(direction))
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(new Matrix3f()), 0, 1, 0).endVertex();
-        consumer.vertex(pose, x0, y1, z3).color(0xFFFFFFFF).uv(map.getU0(direction), map.getV1(direction))
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(pose.normal(new Matrix3f()), 0, 1, 0).endVertex();
     }
 
     public DynamicTextureMap getTextureMap() {

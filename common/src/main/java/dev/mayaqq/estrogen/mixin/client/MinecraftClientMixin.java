@@ -25,7 +25,7 @@ public class MinecraftClientMixin {
         BoobPhysicsManager.tick();
         DreamBlockEffect.tick();
         DreamBlockTexture.animationTick();
-        DynamicDreamTexture.INSTANCE.tick();
+        DynamicDreamTexture.IMMEDIATE.tick();
         DynamicDreamTexture.resetActive();
         UwUfy.tick();
     }

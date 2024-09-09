@@ -22,6 +22,6 @@ public class EstrogenClientNetworkManager {
     }
 
     public static void handleDreamBlockSeed(DreamBlockSeedPacket packet) {
-        DynamicDreamTexture.INSTANCE.changeSeed(packet.newSeed());
+        DynamicDreamTexture.IMMEDIATE.changeSeed(packet.newSeed());
     }
 }

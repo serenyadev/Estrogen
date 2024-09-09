@@ -30,11 +30,11 @@ public class DreamBlockInstance extends BlockEntityInstance<DreamBlockEntity> im
 
     @Override
     public void init() {
-        DynamicDreamTexture.INSTANCE.prepare();
+        DynamicDreamTexture.IMMEDIATE.prepare();
         // Release the basic renderer's texture if it exists
         if(blockEntity.getTexture() != null) blockEntity.setTexture(null);
 
-        data = materialManager.cutout(DynamicDreamTexture.INSTANCE.getRenderType())
+        data = materialManager.cutout(DynamicDreamTexture.IMMEDIATE.getRenderType())
             .material(EstrogenRenderer.DREAM)
             .model(blockState, this::buildModel)
             .createInstance();

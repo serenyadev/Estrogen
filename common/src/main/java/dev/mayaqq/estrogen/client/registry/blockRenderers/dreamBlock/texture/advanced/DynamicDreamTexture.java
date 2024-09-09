@@ -17,12 +17,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DynamicDreamTexture {
 
-    public static final DynamicDreamTexture INSTANCE = new DynamicDreamTexture();
+    public static final DynamicDreamTexture IMMEDIATE = new DynamicDreamTexture(128, 128, 50, 60, 16);
     public static boolean enableAnimation = true;
 
     private static final AtomicBoolean shouldAnimate = new AtomicBoolean();
 
     private final List<Goober> goobers = new ObjectArrayList<>(); //:
+    public final int atlasWidth;
+    public final int atlasHeight;
+    private final int minGoobers;
+    private final int maxGoobers;
+    private final int attempts;
+
     private DynamicTexture texture;
     private ResourceLocation texID;
     private RenderType renderType;
@@ -30,9 +36,25 @@ public class DynamicDreamTexture {
     private int animationTick = 0;
     private boolean init = false;
 
+    public DynamicDreamTexture(int atlasWidth, int atlasHeight, int minGoobers, int maxGoobers, int attempts) {
+        this.atlasWidth = atlasWidth;
+        this.atlasHeight = atlasHeight;
+        this.minGoobers = minGoobers;
+        this.maxGoobers = maxGoobers;
+        this.attempts = attempts;
+    }
+
     public void prepare() {
+        if(RenderSystem.isOnRenderThread()) {
+            this._prepare();
+        } else {
+            RenderSystem.recordRenderCall(this::_prepare);
+        }
+    }
+
+    public void _prepare() {
         if(init) return;
-        texture = new DynamicTexture(128, 128, false);
+        texture = new DynamicTexture(atlasWidth, atlasHeight, false);
         texID = Minecraft.getInstance().getTextureManager().register("dreamy", texture);
         renderType = EstrogenRenderType.DREAM_BLOCK.apply(texID);
         this.draw();
@@ -57,6 +79,10 @@ public class DynamicDreamTexture {
         }
     }
 
+    public ResourceLocation location() {
+        return texID;
+    }
+
     public RenderType getRenderType() {
         return renderType;
     }
@@ -72,14 +98,14 @@ public class DynamicDreamTexture {
 
         if(!goobers.isEmpty()) goobers.clear();
 
-        int count = random.nextIntBetweenInclusive(50, 60);
-        int attempts = 16;
+        int count = random.nextIntBetweenInclusive(minGoobers, maxGoobers);
+        int attempts = this.attempts;
 
         while (count > 0) {
             boolean canPlace = true;
 
-            int posX = random.nextInt(4, 124);
-            int posY = random.nextInt(4, 124);
+            int posX = random.nextInt(4, atlasWidth - 4);
+            int posY = random.nextInt(4, atlasHeight - 4);
 
             for (Goober goob : goobers) {
                 if (goob.tooClose(posX, posY)) {
@@ -104,7 +130,7 @@ public class DynamicDreamTexture {
                 attempts--;
                 if(attempts == 0) {
                     count--;
-                    attempts = 16;
+                    attempts = this.attempts;
                 }
             }
         }

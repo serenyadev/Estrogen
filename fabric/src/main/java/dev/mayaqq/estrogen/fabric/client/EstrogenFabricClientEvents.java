@@ -1,6 +1,7 @@
 package dev.mayaqq.estrogen.fabric.client;
 
 import com.jozufozu.flywheel.fabric.event.FlywheelEvents;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -9,6 +10,7 @@ import dev.mayaqq.estrogen.client.command.EstrogenClientCommands;
 import dev.mayaqq.estrogen.client.config.ConfigSync;
 import dev.mayaqq.estrogen.client.features.dash.DashOverlay;
 import dev.mayaqq.estrogen.client.registry.EstrogenClientEvents;
+import dev.mayaqq.estrogen.client.registry.blockRenderers.dreamBlock.DreamBlockVBORenderer;
 import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -17,6 +19,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.network.chat.Component;
 
 public class EstrogenFabricClientEvents {
@@ -39,6 +42,10 @@ public class EstrogenFabricClientEvents {
         });
 
         EstrogenClientEvents.registerModelLayer((location, definition) -> EntityModelLayerRegistry.registerModelLayer(location, definition::get));
+
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+            DreamBlockVBORenderer.INSTANCE.draw();
+        });
 
     }
 
